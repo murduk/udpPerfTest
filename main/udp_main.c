@@ -89,7 +89,7 @@ static void udp_conn(void *pvParameters)
 #if EXAMPLE_ESP_UDP_PERF_TX
         ESP_LOGI(TAG, "udp send %d byte per sec! total pack: %d \n", bps, success_pack);
 #else
-        ESP_LOGI(TAG, "udp recv %d byte per sec! total pack: %d \n", bps, success_pack);
+        //ESP_LOGI(TAG, "udp recv %d byte per sec! total pack: %d \n", bps, success_pack);
 #endif /*EXAMPLE_ESP_UDP_PERF_TX*/
     }
     close_socket();

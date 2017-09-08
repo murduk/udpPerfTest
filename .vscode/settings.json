@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "event_groups.h": "c",
+        "esp_log.h": "c",
+        "esp_err.h": "c",
+        "udp_perf.h": "c"
+    }
+}

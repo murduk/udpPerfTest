@@ -17,6 +17,7 @@
 #include "esp_log.h"
 
 #include "udp_perf.h"
+#include "ledstuff.h"
 
 /* FreeRTOS event group to signal when we are connected to WiFi and ready to start UDP test*/
 EventGroupHandle_t udp_event_group;
@@ -164,41 +165,7 @@ esp_err_t create_udp_client()
     return ESP_OK;
 }
 
-void testActions(stripAction actions[], int size)
-{
-    ESP_LOGI(TAG, "BEGIN\n");
-    for (int i = 0; i < 600; i++)
-    {
-        for (int j = 0; j < size; j++)
-        {
-            if (actions[j].ms == i)
-            {
-                ESP_LOGI(TAG, "MS_MATCH:%d %d %d %d\n", actions[j].ms, i, actions[j].strip, j);
-                //setColor
-                if (actions[j].mode == 0)
-                {
-                    if (actions[j].strip == 1)
-                    {
-                        //setStrip(firstStrip, actions[j].red, actions[j].green, actions[j].blue);
-                        ESP_LOGI(TAG, "SET FIRST STRIP:%d\n", actions[j].ms);
-                    }
-                    else if (actions[j].strip == 2)
-                    {
-                        //setStrip(secondStrip, actions[j].red, actions[j].green, actions[j].blue);
-                        ESP_LOGI(TAG, "SET SECOND STRIP:%d\n", actions[j].ms);
-                    }
-                    else if (actions[j].strip == 3)
-                    {
-                        //setStrip(thirdStrip, actions[j].red, actions[j].green, actions[j].blue);
-                        ESP_LOGI(TAG, "SET THIRD STRIP:%d\n", actions[j].ms);
-                    }
-                }
-            }
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    }
-    ESP_LOGI(TAG, "END\n");
-}
+
 
 //send or recv data task
 void send_recv_data(void *pvParameters)

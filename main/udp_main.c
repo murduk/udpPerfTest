@@ -34,6 +34,7 @@ step3:
 #include "esp_err.h"
 
 #include "udp_perf.h"
+#include "ledstuff.h"
 
 //this task establish a UDP connection and receive data from UDP
 static void udp_conn(void *pvParameters)
@@ -99,6 +100,7 @@ static void udp_conn(void *pvParameters)
 
 void app_main(void)
 {
+    setupPWM();
 #if EXAMPLE_ESP_WIFI_MODE_AP
     ESP_LOGI(TAG, "EXAMPLE_ESP_WIFI_MODE_AP");
     wifi_init_softap();

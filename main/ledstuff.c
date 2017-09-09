@@ -77,11 +77,11 @@ void setStrip(ledc_info_t strip[], int red, int green, int blue)
 
 void setFadeStrip(ledc_info_t strip[], int red, int green, int blue, int delay)
 {
-    ledc_set_fade_with_time(strip[0].mode, strip[0].channel, red, delay);
+    ledc_set_fade_with_time(strip[0].mode, strip[0].channel, 5000 - red * 5000.0 / 255, delay);
     ledc_fade_start(strip[0].mode, strip[0].channel, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(strip[1].mode, strip[1].channel, green, delay);
+    ledc_set_fade_with_time(strip[1].mode, strip[1].channel, 5000 - green * 5000.0 / 255, delay);
     ledc_fade_start(strip[1].mode, strip[1].channel, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(strip[2].mode, strip[2].channel, blue, delay);
+    ledc_set_fade_with_time(strip[2].mode, strip[2].channel, 5000 - blue * 5000.0 / 255, delay);
     ledc_fade_start(strip[2].mode, strip[2].channel, LEDC_FADE_NO_WAIT);
 }
 
@@ -117,10 +117,34 @@ void testActions(stripAction actions[], int size)
                         setStrip(thirdStrip, actions[j].red, actions[j].green, actions[j].blue);
                     }
                 }
+                else
+                {
+                    if (actions[j].strip == 1)
+                    {
+                        //setStrip(firstStrip, actions[j].red, actions[j].green, actions[j].blue);
+                        ESP_LOGI(TAG, "SET FIRST STRIP DELAY:%d\n", actions[j].ms);
+                        setFadeStrip(firstStrip, actions[j].red, actions[j].green, actions[j].blue, actions[j].delay);
+                    }
+                    else if (actions[j].strip == 2)
+                    {
+                        //setStrip(secondStrip, actions[j].red, actions[j].green, actions[j].blue);
+                        ESP_LOGI(TAG, "SET SECOND STRIP DELAY:%d\n", actions[j].ms);
+                        setFadeStrip(secondStrip, actions[j].red, actions[j].green, actions[j].blue, actions[j].delay);
+                    }
+                    else if (actions[j].strip == 3)
+                    {
+                        //setStrip(thirdStrip, actions[j].red, actions[j].green, actions[j].blue);
+                        ESP_LOGI(TAG, "SET THIRD STRIP DELAY:%d\n", actions[j].ms);
+                        setFadeStrip(thirdStrip, actions[j].red, actions[j].green, actions[j].blue, actions[j].delay);
+                    }
+                }
             }
         }
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
+    setStrip(firstStrip, 0, 0, 0);
+    setStrip(secondStrip, 0, 0, 0);
+    setStrip(thirdStrip, 0, 0, 0);
     ESP_LOGI(TAG, "END\n");
 }
 

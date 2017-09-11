@@ -81,8 +81,10 @@ void wifi_init_sta()
         .sta = {
             //.ssid = "Mert's iPhone",
             //.password = "mert1492"},
-            .ssid = "NEC_TR_Guest",
-            .password = "newmexico1912"},
+            //.ssid = "NEC_TR_Guest",
+            //.password = "newmexico1912"},
+            .ssid = "mert",
+            .password = "3123177971"},
     };
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));

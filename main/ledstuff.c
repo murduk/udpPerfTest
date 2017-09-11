@@ -75,7 +75,7 @@ void setStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsig
     ledc_update_duty(strip[2].mode, strip[2].channel);
 }
 
-void setFadeStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue, unsigned char delay)
+void setFadeStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue, int delay)
 {
     ledc_set_fade_with_time(strip[0].mode, strip[0].channel, 5000 - red * 5000.0 / 255, delay);
     ledc_fade_start(strip[0].mode, strip[0].channel, LEDC_FADE_NO_WAIT);

@@ -241,7 +241,7 @@ void send_recv_data(void *pvParameters)
                     spAction.ms = ms;
                     ESP_LOGI(TAG, "Ms:%d\n", ms);
                     
-                    spAction.strip = databuff[7 + j * 9];
+                    spAction.strip = 4 - databuff[7 + j * 9];
                     ESP_LOGI(TAG, "Strip No:%d\n", spAction.strip);
                     
                     spAction.mode = databuff[8 + j * 9];

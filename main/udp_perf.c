@@ -79,8 +79,10 @@ void wifi_init_sta()
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = EXAMPLE_DEFAULT_SSID,
-            .password = EXAMPLE_DEFAULT_PWD},
+            //.ssid = "Mert's iPhone",
+            //.password = "mert1492"},
+            .ssid = "NEC_TR_Guest",
+            .password = "newmexico1912"},
     };
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -194,6 +196,7 @@ void send_recv_data(void *pvParameters)
     }
     else
     {
+        ESP_LOGI(TAG, "OOPSS\n");
         show_socket_error_reason(mysocket);
         close(mysocket);
         vTaskDelete(NULL);
@@ -230,24 +233,31 @@ void send_recv_data(void *pvParameters)
                 {
                     stripAction spAction;
                     int ms = 0;
-                    ms = databuff[5 + j * 12];
+                    ms = databuff[5 + j * 9];
                     ms = ms << 8;
-                    ms = ms | databuff[6 + j * 12];
+                    ms = ms | databuff[6 + j * 9];
                     spAction.ms = ms;
                     ESP_LOGI(TAG, "Ms:%d\n", ms);
-                    spAction.strip = databuff[7 + j * 12];
+                    
+                    spAction.strip = databuff[7 + j * 9];
                     ESP_LOGI(TAG, "Strip No:%d\n", spAction.strip);
-                    spAction.mode = databuff[8 + j * 12];
+                    
+                    spAction.mode = databuff[8 + j * 9];
                     ESP_LOGI(TAG, "Mode:%d\n", spAction.mode);
-                    spAction.red = databuff[9 + j * 12];
+                    
+                    spAction.red = databuff[9 + j * 9];
                     ESP_LOGI(TAG, "Red:%d\n", spAction.red);
-                    spAction.green = databuff[10 + j * 12];
+                    
+                    spAction.green = databuff[10 + j * 9];
                     ESP_LOGI(TAG, "Green:%d\n", spAction.green);
-                    spAction.blue = databuff[11 + j * 12];
+                    
+                    spAction.blue = databuff[11 + j * 9];
+                    ESP_LOGI(TAG, "Blue:%d\n", spAction.blue);                                        
+                    
                     int delay = 0;
-                    delay = databuff[12 + j * 12];
+                    delay = databuff[12 + j * 9];
                     delay = delay << 8;
-                    delay = delay | databuff[13 + j * 12];
+                    delay = delay | databuff[13 + j * 9];
                     spAction.delay = delay;
                     ESP_LOGI(TAG, "Delay:%d\n", delay);
                     effects[j] = spAction;

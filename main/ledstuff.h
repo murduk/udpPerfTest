@@ -5,14 +5,11 @@
 typedef struct
 {
     int ms;
-    int strip;
-    int mode;
-    int red;
-    int green;
-    int blue;
-    int red2;
-    int green2;
-    int blue2;
+    unsigned char strip;
+    unsigned char mode;
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
     int delay;
 } stripAction;
 

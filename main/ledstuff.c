@@ -67,21 +67,21 @@ ledc_info_t thirdStrip[3];
 void setStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue)
 {
     //temp
-    ledc_set_duty(strip[0].mode, strip[0].channel, 5000 - red * 5000.0 / 255);
+    ledc_set_duty(strip[0].mode, strip[0].channel, red * 8192 / 255);
     ledc_update_duty(strip[0].mode, strip[0].channel);
-    ledc_set_duty(strip[1].mode, strip[1].channel, 5000 - green * 5000.0 / 255);
+    ledc_set_duty(strip[1].mode, strip[1].channel, green * 8192 / 255);
     ledc_update_duty(strip[1].mode, strip[1].channel);
-    ledc_set_duty(strip[2].mode, strip[2].channel, 5000 - blue * 5000.0 / 255);
+    ledc_set_duty(strip[2].mode, strip[2].channel, blue * 8192 / 255);
     ledc_update_duty(strip[2].mode, strip[2].channel);
 }
 
 void setFadeStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue, int delay)
 {
-    ledc_set_fade_with_time(strip[0].mode, strip[0].channel, 5000 - red * 5000.0 / 255, delay);
+    ledc_set_fade_with_time(strip[0].mode, strip[0].channel, red * 8192 / 255, delay);
     ledc_fade_start(strip[0].mode, strip[0].channel, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(strip[1].mode, strip[1].channel, 5000 - green * 5000.0 / 255, delay);
+    ledc_set_fade_with_time(strip[1].mode, strip[1].channel, green * 8192 / 255, delay);
     ledc_fade_start(strip[1].mode, strip[1].channel, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(strip[2].mode, strip[2].channel, 5000 - blue * 5000.0 / 255, delay);
+    ledc_set_fade_with_time(strip[2].mode, strip[2].channel, blue * 8192 / 255, delay);
     ledc_fade_start(strip[2].mode, strip[2].channel, LEDC_FADE_NO_WAIT);
 }
 
@@ -153,35 +153,20 @@ void setupPWM()
     ESP_LOGI(TAG, "SETUP_PWM_BEGIN\n");
     int ch;
 
-    ledc_info_t firstStripTmp[3] = {{.channel = LEDC_CHANNEL_0, .io = (18), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER}, {.channel = LEDC_CHANNEL_1, .io = (19), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER}, {.channel = LEDC_CHANNEL_2, .io = (5), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER}};
+    ledc_info_t firstStripTmp[3] = {
+        {.channel = LEDC_CHANNEL_0, .io = (2), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER},
+        {.channel = LEDC_CHANNEL_1, .io = (4), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER},
+        {.channel = LEDC_CHANNEL_2, .io = (15), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER}};
 
     ledc_info_t secondStripTmp[3] = {
-        {.channel = LEDC_CHANNEL_3,
-         .io = (21),
-         .mode = LEDC_HS_MODE,
-         .timer_idx = LEDC_HS_TIMER},
-        {.channel = LEDC_CHANNEL_4,
-         .io = (23),
-         .mode = LEDC_HS_MODE,
-         .timer_idx = LEDC_HS_TIMER},
-        {.channel = LEDC_CHANNEL_5,
-         .io = (22),
-         .mode = LEDC_HS_MODE,
-         .timer_idx = LEDC_HS_TIMER}};
+        {.channel = LEDC_CHANNEL_3, .io = (18), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER},
+        {.channel = LEDC_CHANNEL_4, .io = (19), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER},
+        {.channel = LEDC_CHANNEL_5, .io = (5), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER}};
 
     ledc_info_t thirdStripTmp[3] = {
-        {.channel = LEDC_CHANNEL_6,
-         .io = (4),
-         .mode = LEDC_HS_MODE,
-         .timer_idx = LEDC_HS_TIMER},
-        {.channel = LEDC_CHANNEL_0,
-         .io = (15),
-         .mode = LEDC_LS_MODE,
-         .timer_idx = LEDC_LS_TIMER},
-        {.channel = LEDC_CHANNEL_1,
-         .io = (2),
-         .mode = LEDC_LS_MODE,
-         .timer_idx = LEDC_LS_TIMER}};
+        {.channel = LEDC_CHANNEL_6, .io = (22), .mode = LEDC_HS_MODE, .timer_idx = LEDC_HS_TIMER},
+        {.channel = LEDC_CHANNEL_0, .io = (23), .mode = LEDC_LS_MODE, .timer_idx = LEDC_LS_TIMER},
+        {.channel = LEDC_CHANNEL_1, .io = (21), .mode = LEDC_LS_MODE, .timer_idx = LEDC_LS_TIMER}};
 
     for (int i = 0; i < 3; i++)
     {

@@ -11,6 +11,10 @@
         "math.h": "c",
         "stdio.h": "c",
         "xtensa_api.h": "c",
-        "ledc.h": "c"
+        "ledc.h": "c",
+        "stat.h": "c",
+        "unistd.h": "c",
+        "stdint.h": "c",
+        "esp_spiffs.h": "c"
     }
 }

@@ -15,6 +15,9 @@
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_log.h"
+#include "esp_spiffs.h"
+#include <sys/unistd.h>
+#include <sys/stat.h>
 
 #include "udp_perf.h"
 #include "ledstuff.h"
@@ -175,8 +178,12 @@ void send_recv_data(void *pvParameters)
     ESP_LOGI(TAG, "task send_recv_data start!\n");
     int fileMode = 0;
     int fileIndex = 0;
+    int recievedBytes = 0;
 
-    int len;
+    int len = 0;
+    int fileSize = 0;
+    FILE *f = NULL;
+
     char databuff[EXAMPLE_DEFAULT_PKTSIZE];
 
     /*send&receive first packet*/
@@ -184,7 +191,7 @@ void send_recv_data(void *pvParameters)
     memset(databuff, EXAMPLE_PACK_BYTE_IS, EXAMPLE_DEFAULT_PKTSIZE);
 #if EXAMPLE_ESP_UDP_MODE_SERVER
     ESP_LOGI(TAG, "first recvfrom:");
-    len = recvfrom(mysocket, databuff, EXAMPLE_DEFAULT_PKTSIZE, 0, (struct sockaddr *)&remote_addr, &socklen);
+//len = recvfrom(mysocket, databuff, EXAMPLE_DEFAULT_PKTSIZE, 0, (struct sockaddr *)&remote_addr, &socklen);
 #else
     ESP_LOGI(TAG, "first sendto:");
     len = sendto(mysocket, databuff, EXAMPLE_DEFAULT_PKTSIZE, 0, (struct sockaddr *)&remote_addr, sizeof(remote_addr));
@@ -198,11 +205,11 @@ void send_recv_data(void *pvParameters)
     }
     else
     {
-        ESP_LOGI(TAG, "OOPSS\n");
-        show_socket_error_reason(mysocket);
-        close(mysocket);
-        vTaskDelete(NULL);
-    } /*if (len > 0)*/
+        //ESP_LOGI(TAG, "OOPSS\n");
+        //show_socket_error_reason(mysocket);
+        //close(mysocket);
+        //vTaskDelete(NULL);
+    }
 
 #if EXAMPLE_ESP_UDP_PERF_TX
     vTaskDelay(500 / portTICK_RATE_MS);
@@ -221,19 +228,34 @@ void send_recv_data(void *pvParameters)
             ESP_LOGI(TAG, "Recieved %d\n", len);
             fileIndex = 0;
 
-            if (fileMode < 0)
+            if (fileMode > 1)
+            {
+                fwrite(databuff, len, len, f);
+                recievedBytes += len;
+                if(recievedBytes >= fileSize){
+                    fclose(f);
+                }
+            }
+            else
             {
                 if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[2] == 0xBB && databuff[3] == 0xCC)
                 {
                     fileMode = 1;
                     fileIndex = 4;
-                }                
+                    fileSize = 0;
+                    fileSize = databuff[4];
+                    fileSize = fileSize << 8;
+                    fileSize = fileSize | databuff[5];
+                    ESP_LOGI(TAG, "Opening file");
+                    f = fopen("/spiffs/sea.mp3", "w");
+                    if (f == NULL)
+                    {
+                        ESP_LOGE(TAG, "Failed to open file for writing");
+                        return;
+                    }
+                }
             }
 
-            if (fileMode > 1)
-            {
-                
-            }
             /*if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[len - 2] == 0xAA && databuff[len - 1] == 0xFF)
             {
                 ESP_LOGI(TAG, "Valid Data\n");

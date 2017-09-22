@@ -35,6 +35,7 @@ step3:
 #include "esp_spiffs.h"
 #include <sys/unistd.h>
 #include <sys/stat.h>
+#include "stdio.h"
 
 #include "udp_perf.h"
 #include "ledstuff.h"

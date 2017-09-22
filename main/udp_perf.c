@@ -83,8 +83,8 @@ void wifi_init_sta()
             //.password = "mert1492"},
             .ssid = "NEC_TR_Guest",
             .password = "newmexico1912"},
-            //.ssid = "mert",
-            //.password = "3123177971"},
+        //.ssid = "mert",
+        //.password = "3123177971"},
     };
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -169,12 +169,12 @@ esp_err_t create_udp_client()
     return ESP_OK;
 }
 
-
-
 //send or recv data task
 void send_recv_data(void *pvParameters)
 {
     ESP_LOGI(TAG, "task send_recv_data start!\n");
+    int fileMode = 0;
+    int fileIndex = 0;
 
     int len;
     char databuff[EXAMPLE_DEFAULT_PKTSIZE];
@@ -219,7 +219,22 @@ void send_recv_data(void *pvParameters)
         if (len > 0)
         {
             ESP_LOGI(TAG, "Recieved %d\n", len);
-            if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[len - 2] == 0xAA && databuff[len - 1] == 0xFF)
+            fileIndex = 0;
+
+            if (fileMode < 0)
+            {
+                if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[2] == 0xBB && databuff[3] == 0xCC)
+                {
+                    fileMode = 1;
+                    fileIndex = 4;
+                }                
+            }
+
+            if (fileMode > 1)
+            {
+                
+            }
+            /*if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[len - 2] == 0xAA && databuff[len - 1] == 0xFF)
             {
                 ESP_LOGI(TAG, "Valid Data\n");
                 int duration = 0;
@@ -265,7 +280,7 @@ void send_recv_data(void *pvParameters)
                     effects[j] = spAction;
                 }
                 testActions(effects, numberOfEffects);
-            }
+            }*/
 
             total_data += len;
             //success_pack++;

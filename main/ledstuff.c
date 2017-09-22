@@ -8,6 +8,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <Math.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/xtensa_api.h"
@@ -67,21 +68,21 @@ ledc_info_t thirdStrip[3];
 void setStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue)
 {
     //temp
-    ledc_set_duty(strip[0].mode, strip[0].channel, red * 8192 / 255);
+    ledc_set_duty(strip[0].mode, strip[0].channel, floor((red / 255.0) * 8191));
     ledc_update_duty(strip[0].mode, strip[0].channel);
-    ledc_set_duty(strip[1].mode, strip[1].channel, green * 8192 / 255);
+    ledc_set_duty(strip[1].mode, strip[1].channel, floor((green / 255.0) * 8191));
     ledc_update_duty(strip[1].mode, strip[1].channel);
-    ledc_set_duty(strip[2].mode, strip[2].channel, blue * 8192 / 255);
+    ledc_set_duty(strip[2].mode, strip[2].channel, floor((blue / 255.0) * 8191));
     ledc_update_duty(strip[2].mode, strip[2].channel);
 }
 
 void setFadeStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue, int delay)
 {
-    ledc_set_fade_with_time(strip[0].mode, strip[0].channel, red * 8192 / 255, delay);
+    ledc_set_fade_with_time(strip[0].mode, strip[0].channel, floor((red / 255.0) * 8191), delay);
     ledc_fade_start(strip[0].mode, strip[0].channel, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(strip[1].mode, strip[1].channel, green * 8192 / 255, delay);
+    ledc_set_fade_with_time(strip[1].mode, strip[1].channel, floor((green / 255.0) * 8191), delay);
     ledc_fade_start(strip[1].mode, strip[1].channel, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(strip[2].mode, strip[2].channel, blue * 8192 / 255, delay);
+    ledc_set_fade_with_time(strip[2].mode, strip[2].channel, floor((blue / 255.0) * 8191), delay);
     ledc_fade_start(strip[2].mode, strip[2].channel, LEDC_FADE_NO_WAIT);
 }
 

@@ -4,6 +4,13 @@
         "esp_log.h": "c",
         "esp_err.h": "c",
         "udp_perf.h": "c",
-        "esp_event_loop.h": "c"
+        "esp_event_loop.h": "c",
+        "task.h": "c",
+        "freertos.h": "c",
+        "string.h": "c",
+        "math.h": "c",
+        "stdio.h": "c",
+        "xtensa_api.h": "c",
+        "ledc.h": "c"
     }
 }

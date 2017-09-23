@@ -143,6 +143,11 @@ esp_err_t create_udp_server()
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(EXAMPLE_DEFAULT_PORT);
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    remote_addr.sin_family = AF_INET;
+    remote_addr.sin_port = htons(4567);
+    remote_addr.sin_addr.s_addr = inet_addr("192.168.50.175");    
+
     if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         show_socket_error_reason(mysocket);
@@ -177,7 +182,7 @@ void send_recv_data(void *pvParameters)
 {
     ESP_LOGI(TAG, "task send_recv_data start!\n");
     int fileMode = 0;
-    int fileIndex = 0;
+
     int recievedBytes = 0;
 
     int len = 0;
@@ -225,16 +230,48 @@ void send_recv_data(void *pvParameters)
 #endif
         if (len > 0)
         {
-            ESP_LOGI(TAG, "Recieved %d\n", len);
-            fileIndex = 0;
+            //ESP_LOGI(TAG, "Recieved %d\n", len);
 
-            if (fileMode > 1)
+            if (fileMode > 0)
             {
-                fwrite(databuff, len, len, f);
+                ESP_LOGI(TAG, "Recieved %d", recievedBytes);
+                fwrite(databuff, 1, len, f);
+                sendto(mysocket, databuff, 1, 0, (struct sockaddr *)&remote_addr, sizeof(remote_addr));
                 recievedBytes += len;
-                if(recievedBytes >= fileSize){
+                if (recievedBytes >= fileSize)
+                {
                     fclose(f);
                     ESP_LOGI(TAG, "File Closed");
+                    ESP_LOGI(TAG, "Reading file");
+                    audio_player_start(player_config);
+                    vTaskDelay(1500 / portTICK_RATE_MS);
+                    f = fopen("/spiffs/sea.mp3", "r");
+                    if (f == NULL)
+                    {
+                        ESP_LOGE(TAG, "Failed to open file for reading");
+                        //return;                        
+                    }
+                    if (f != NULL)
+                    {
+                        // read up to sizeof(buffer) bytes
+                        struct stat st;
+                        stat("/spiffs/sea.mp3", &st);                        
+                        ESP_LOGI(TAG, "fileStat: %lu", st.st_size);
+                        //ESP_LOGI(TAG,"fileSize: %d", fileSize);
+                        
+                        fileSize = 0;
+                        char databuff2[2048];
+                        while ((fileSize = fread(databuff2, 1, 2048, f)) > 0)
+                        {
+                            // process bytesRead worth of data in buffer
+                            //ESP_LOGI(TAG, "fileSize: %d", fileSize);
+                            audio_stream_consumer(databuff2, fileSize, player_config);
+                        }
+                        ESP_LOGI(TAG, "File Closed2");
+                        fclose(f);
+                        player_config->media_stream->eof = true;
+                        audio_player_stop(player_config);
+                    }
                 }
             }
             else
@@ -242,17 +279,21 @@ void send_recv_data(void *pvParameters)
                 if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[2] == 0xBB && databuff[3] == 0xCC)
                 {
                     fileMode = 1;
-                    fileIndex = 4;
                     fileSize = 0;
                     fileSize = databuff[4];
                     fileSize = fileSize << 8;
                     fileSize = fileSize | databuff[5];
+                    fileSize = fileSize << 8;
+                    fileSize = fileSize | databuff[6];
+                    fileSize = fileSize << 8;
+                    fileSize = fileSize | databuff[7];
+                    ESP_LOGI(TAG, "File Size: %d", fileSize);
                     ESP_LOGI(TAG, "Opening file");
                     f = fopen("/spiffs/sea.mp3", "w");
                     if (f == NULL)
                     {
                         ESP_LOGE(TAG, "Failed to open file for writing");
-                        return;
+                        unlink("/spiffs/sea.mp3");
                     }
                 }
             }

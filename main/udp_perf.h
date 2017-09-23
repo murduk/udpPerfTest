@@ -11,7 +11,7 @@
 #ifndef __UDP_PERF_H__
 #define __UDP_PERF_H__
 
-
+#include "audio_player.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +73,7 @@ int check_connected_socket();
 //close all socket
 void close_socket();
 
-
+extern player_t *player_config;
 
 
 

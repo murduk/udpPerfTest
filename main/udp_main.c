@@ -40,6 +40,11 @@ step3:
 #include "udp_perf.h"
 #include "ledstuff.h"
 
+#include "spiram_fifo.h"
+#include "audio_renderer.h"
+#include "playerconfig.h"
+#include "audio_player.h"
+
 //this task establish a UDP connection and receive data from UDP
 static void udp_conn(void *pvParameters)
 {
@@ -70,7 +75,7 @@ static void udp_conn(void *pvParameters)
 
     /*create a task to tx/rx data*/
     TaskHandle_t tx_rx_task;
-    xTaskCreate(&send_recv_data, "send_recv_data", 4096, NULL, 4, &tx_rx_task);
+    xTaskCreate(&send_recv_data, "send_recv_data", 6144, NULL, 4, &tx_rx_task);
 
     /*waiting udp connected success*/
     xEventGroupWaitBits(udp_event_group, UDP_CONNCETED_SUCCESS, false, true, portMAX_DELAY);
@@ -100,6 +105,52 @@ static void udp_conn(void *pvParameters)
     close_socket();
     vTaskDelete(tx_rx_task);
     vTaskDelete(NULL);
+}
+
+static renderer_config_t *create_renderer_config()
+{
+    renderer_config_t *renderer_config = calloc(1, sizeof(renderer_config_t));
+
+    renderer_config->bit_depth = I2S_BITS_PER_SAMPLE_16BIT;
+    renderer_config->i2s_num = I2S_NUM_0;
+    renderer_config->sample_rate = 44100;
+    renderer_config->sample_rate_modifier = 1.0;
+    renderer_config->output_mode = AUDIO_OUTPUT_MODE;
+
+    if(renderer_config->output_mode == I2S_MERUS) {
+        renderer_config->bit_depth = I2S_BITS_PER_SAMPLE_32BIT;
+    }
+
+    if(renderer_config->output_mode == DAC_BUILT_IN) {
+        renderer_config->bit_depth = I2S_BITS_PER_SAMPLE_16BIT;
+    }
+
+    return renderer_config;
+}
+
+player_t *player_config = NULL;
+
+static void setupAudioPlayer()
+{
+    // init web radio
+    player_config = calloc(1, sizeof(player_t));
+
+    // init player config
+    
+    player_config->command = CMD_NONE;
+    player_config->decoder_status = UNINITIALIZED;
+    player_config->decoder_command = CMD_NONE;
+    player_config->buffer_pref = BUF_PREF_SAFE;
+    player_config->media_stream = calloc(1, sizeof(media_stream_t));
+    player_config->media_stream->content_type = AUDIO_MPEG;
+    player_config->media_stream->eof = false;
+
+    // init renderer
+    renderer_init(create_renderer_config());
+    audio_player_init(player_config);
+    // start radio
+    //web_radio_init(radio_config);
+    //web_radio_start(radio_config);
 }
 
 void initFile()
@@ -140,12 +191,17 @@ void initFile()
 void app_main(void)
 {
     setupPWM();
+    if (!spiRamFifoInit()) {
+        ESP_LOGE(TAG,"SPI RAM chip fail!");
+        while(1);
+    }
 #if EXAMPLE_ESP_WIFI_MODE_AP
     ESP_LOGI(TAG, "EXAMPLE_ESP_WIFI_MODE_AP");
     wifi_init_softap();
 #else /*EXAMPLE_ESP_WIFI_MODE_AP*/
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-    initFile();
+    initFile();    
+    setupAudioPlayer();
     wifi_init_sta();
 #endif
     xTaskCreate(&udp_conn, "udp_conn", 4096, NULL, 5, NULL);

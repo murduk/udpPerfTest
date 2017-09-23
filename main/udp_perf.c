@@ -234,6 +234,7 @@ void send_recv_data(void *pvParameters)
                 recievedBytes += len;
                 if(recievedBytes >= fileSize){
                     fclose(f);
+                    ESP_LOGI(TAG, "File Closed");
                 }
             }
             else

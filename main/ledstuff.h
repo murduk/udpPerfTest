@@ -14,6 +14,7 @@ typedef struct
 } stripAction;
 
 void testActions(stripAction actions[], int size);
+void testActions2(stripAction actions[], int size);
 void setupPWM();
 
 #endif

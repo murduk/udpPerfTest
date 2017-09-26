@@ -276,7 +276,7 @@ void send_recv_data(void *pvParameters)
             }
             else
             {
-                if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[2] == 0xBB && databuff[3] == 0xCC)
+                if (databuff[0] == 0xFF && databuff[1] == 0xBB && databuff[2] == 0xBB && databuff[3] == 0xCC)
                 {
                     fileMode = 1;
                     fileSize = 0;
@@ -296,55 +296,56 @@ void send_recv_data(void *pvParameters)
                         unlink("/spiffs/sea.mp3");
                     }
                 }
+                else if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[len - 2] == 0xAA && databuff[len - 1] == 0xFF)
+                {
+                    ESP_LOGI(TAG, "Valid Data\n");
+                    int duration = 0;
+                    duration = databuff[2];
+                    duration = duration << 8;
+                    duration = duration | databuff[3];
+                    ESP_LOGI(TAG, "Duration:%d\n", duration);
+                    ESP_LOGI(TAG, "Number of effects:%d\n", databuff[4]);
+                    int numberOfEffects = databuff[4];
+                    stripAction effects[numberOfEffects];
+    
+                    for (int j = 0; j < numberOfEffects; j++)
+                    {
+                        stripAction spAction;
+                        int ms = 0;
+                        ms = databuff[5 + j * 9];
+                        ms = ms << 8;
+                        ms = ms | databuff[6 + j * 9];
+                        spAction.ms = ms;
+                        ESP_LOGI(TAG, "Ms:%d\n", ms);
+                        
+                        spAction.strip = 4 - databuff[7 + j * 9];
+                        ESP_LOGI(TAG, "Strip No:%d\n", spAction.strip);
+                        
+                        spAction.mode = databuff[8 + j * 9];
+                        ESP_LOGI(TAG, "Mode:%d\n", spAction.mode);
+                        
+                        spAction.red = databuff[9 + j * 9];
+                        ESP_LOGI(TAG, "Red:%d\n", spAction.red);
+                        
+                        spAction.green = databuff[10 + j * 9];
+                        ESP_LOGI(TAG, "Green:%d\n", spAction.green);
+                        
+                        spAction.blue = databuff[11 + j * 9];
+                        ESP_LOGI(TAG, "Blue:%d\n", spAction.blue);                                        
+                        
+                        int delay = 0;
+                        delay = databuff[12 + j * 9];
+                        delay = delay << 8;
+                        delay = delay | databuff[13 + j * 9];
+                        spAction.delay = delay;
+                        ESP_LOGI(TAG, "Delay:%d\n", delay);
+                        effects[j] = spAction;
+                    }
+                    testActions2(effects, numberOfEffects);
+                }                
             }
 
-            /*if (databuff[0] == 0xFF && databuff[1] == 0xAA && databuff[len - 2] == 0xAA && databuff[len - 1] == 0xFF)
-            {
-                ESP_LOGI(TAG, "Valid Data\n");
-                int duration = 0;
-                duration = databuff[2];
-                duration = duration << 8;
-                duration = duration | databuff[3];
-                ESP_LOGI(TAG, "Duration:%d\n", duration);
-                ESP_LOGI(TAG, "Number of effects:%d\n", databuff[4]);
-                int numberOfEffects = databuff[4];
-                stripAction effects[numberOfEffects];
 
-                for (int j = 0; j < numberOfEffects; j++)
-                {
-                    stripAction spAction;
-                    int ms = 0;
-                    ms = databuff[5 + j * 9];
-                    ms = ms << 8;
-                    ms = ms | databuff[6 + j * 9];
-                    spAction.ms = ms;
-                    ESP_LOGI(TAG, "Ms:%d\n", ms);
-                    
-                    spAction.strip = 4 - databuff[7 + j * 9];
-                    ESP_LOGI(TAG, "Strip No:%d\n", spAction.strip);
-                    
-                    spAction.mode = databuff[8 + j * 9];
-                    ESP_LOGI(TAG, "Mode:%d\n", spAction.mode);
-                    
-                    spAction.red = databuff[9 + j * 9];
-                    ESP_LOGI(TAG, "Red:%d\n", spAction.red);
-                    
-                    spAction.green = databuff[10 + j * 9];
-                    ESP_LOGI(TAG, "Green:%d\n", spAction.green);
-                    
-                    spAction.blue = databuff[11 + j * 9];
-                    ESP_LOGI(TAG, "Blue:%d\n", spAction.blue);                                        
-                    
-                    int delay = 0;
-                    delay = databuff[12 + j * 9];
-                    delay = delay << 8;
-                    delay = delay | databuff[13 + j * 9];
-                    spAction.delay = delay;
-                    ESP_LOGI(TAG, "Delay:%d\n", delay);
-                    effects[j] = spAction;
-                }
-                testActions(effects, numberOfEffects);
-            }*/
 
             total_data += len;
             //success_pack++;

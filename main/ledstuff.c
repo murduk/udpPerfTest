@@ -143,7 +143,7 @@ static void example_tg0_timer1_init()
     /*Set ISR handler*/
     timer_isr_register(timer_group, timer_idx, timer_group0_isr, (void *)timer_idx, ESP_INTR_FLAG_IRAM, NULL);
     /*Start timer counter*/
-    timer_start(timer_group, timer_idx);
+    //timer_start(timer_group, timer_idx);
 }
 
 static void pauseTimer()
@@ -151,6 +151,13 @@ static void pauseTimer()
     int timer_group = TIMER_GROUP_0;
     int timer_idx = TIMER_1;
     timer_pause(timer_group, timer_idx);
+}
+
+static void startTimer()
+{
+    int timer_group = TIMER_GROUP_0;
+    int timer_idx = TIMER_1;
+    timer_start(timer_group, timer_idx);
 }
 
 void setStrip(ledc_info_t strip[], unsigned char red, unsigned char green, unsigned char blue)
@@ -183,7 +190,7 @@ void testActions(stripAction actions[], int size)
         {
             if (actions[j].ms == i)
             {
-                ESP_LOGI(TAG, "MS_MATCH:%d %d %d %d\n", actions[j].ms, i, actions[j].strip, j);
+                //ESP_LOGI(TAG, "MS_MATCH:%d %d %d %d\n", actions[j].ms, i, actions[j].strip, j);
                 //setColor
                 if (actions[j].mode == 0)
                 {
@@ -245,9 +252,10 @@ void testActions2(stripAction actions[], int size)
     if (timer_queue == NULL)
     {
         timer_queue = xQueueCreate(10, sizeof(char));        
+        example_tg0_timer1_init();
     }
     xQueueReset(timer_queue);    
-    example_tg0_timer1_init();
+    startTimer();
     char evt = 0;
     while (evt < 60)
     {        
